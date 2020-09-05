@@ -3,7 +3,7 @@
 class Users extends Controller {
 
   public function __construct() {
-
+    $this->userModel = $this->model('User');
   }
 
   public function register() {
@@ -34,6 +34,11 @@ class Users extends Controller {
       // Validate E-Mail
       if (empty($data['email'])) {
         $data['email_error'] = 'Please enter email';
+      } else {
+        // Check if email already exists
+        if ($this->userModel->findUserByEmail($data['email'])) {
+          $data['email_error'] = 'E-Mail is already taken';
+        }
       }
 
       // Validate Password
@@ -58,7 +63,17 @@ class Users extends Controller {
           empty($data['password_error']) &&
           empty($data['confirm_password_error'])) {
         // Validated
-        die('REGISTERED');
+        
+        // Hash the password
+        $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
+
+        // Register User
+        if ($this->userModel->register($data)) {
+          // Success: redirect to login
+          redirect('/users/login');
+        } else {
+          die('REGISTRATION FAILED');
+        }
       } else {
         // Load view with errors
         $this->view('users/register', $data);
