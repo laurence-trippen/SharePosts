@@ -2,11 +2,13 @@
 
 class Pages extends Controller {
 
-  public function __construct() {
-    
-  }
+  public function __construct() {}
 
   public function index() {
+    if (isLoggedIn()) {
+      redirect('/posts');
+    }
+
     $this->view('pages/index', [
       'title' => 'SharePosts',
       'description' => 'Simple social network build on the SmartElephantPHP framework.'
