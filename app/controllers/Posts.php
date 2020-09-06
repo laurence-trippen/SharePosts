@@ -47,9 +47,9 @@ class Posts extends Controller {
 
       // Make sure no errors
       if (!empty($data['title']) && !empty($data['body'])) {
-        // Validateds
+        // Validated
         if ($this->postModel->addPost($data)) {
-          flash('post_added', 'Post Added');
+          flash('post_message', 'Post Added');
           redirect('/posts');
         } else {
           die('Something went wrong');
@@ -65,6 +65,62 @@ class Posts extends Controller {
       ];
   
       $this->view('posts/add', $data);
+    }
+  }
+
+  public function edit($id) {
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+      // Sanitize POST array
+      $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+
+      $data = [
+        'id' => $id,
+        'title' => trim($_POST['title']),
+        'body' => trim($_POST['body']),
+        'user_id' => $_SESSION['user_id'],
+        'title_error' => '',
+        'body_error' => ''
+      ];
+
+      // Validate title
+      if (empty($data['title'])) {
+        $data['title_error'] = 'Please enter title';
+      }
+
+      // Validate body
+      if (empty($data['body'])) {
+        $data['body_error'] = 'Please enter body';
+      }
+
+      // Make sure no errors
+      if (!empty($data['title']) && !empty($data['body'])) {
+        // Validated
+        if ($this->postModel->updatePost($data)) {
+          flash('post_message', 'Post Updated');
+          redirect('/posts');
+        } else {
+          die('Something went wrong');
+        }
+      } else {
+        // Load view with errors
+        $this->view('posts/edit', $data);
+      }
+    } else {
+      // Get Post
+      $post = $this->postModel->getPostById($id);
+
+      // Check for post owner
+      if ($post->user_id != $_SESSION['user_id']) {
+        redirect('/posts');
+      }
+
+      $data = [
+        'id' => $id,
+        'title' => $post->title,
+        'body' => $post->body
+      ];
+  
+      $this->view('posts/edit', $data);
     }
   }
 

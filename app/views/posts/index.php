@@ -1,6 +1,6 @@
 <?php require APP_ROOT . '/views/include/header.php' ?>
 
-<?php flash('post_added'); ?>
+<?php flash('post_message'); ?>
 
   <div class="row mb-3">
     <div class="col-md-6">
